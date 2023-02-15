@@ -1,26 +1,55 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import { Paper, TextField, Autocomplete } from '@mui/material';
 
-function App() {
+// https://catfact.ninja/breedsの戻り値の型
+//  不要な項目は省略しました
+type CatfactResponseType = {
+  current_page: number,
+  data: CatfactDateType[],
+  last_page: number,
+  per_page: number,
+  total: number
+};
+type CatfactDateType = {
+  breed: string,
+  country: string,
+  origin: string,
+  coat: string,
+  pattern: string
+}
+
+const sleep = (sec: number) => new Promise((resolve) => setTimeout(resolve, sec * 1000));
+
+const getCatBreeds = async () => {
+  const response = await fetch("https://catfact.ninja/breeds");
+  const body: CatfactResponseType = await response.json();
+  console.log(body);
+  await sleep(2);
+  return body.data;
+}
+
+const App = () => {
+  const [catBreeds, setCatBreeds] = useState<CatfactDateType[]>([]);
+
+  useEffect(() => {
+    (async() => {
+      setCatBreeds(await getCatBreeds());
+    })();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Paper sx={{p: 10, m: 5}}>
+    <Autocomplete
+      disablePortal
+      id="combo-box-demo"
+      options={catBreeds}
+      getOptionLabel={(option) => option.breed}
+      sx={{ width: 300 }}
+      renderInput={(params) => <TextField {...params} label="Cats" />}
+    />
+   </Paper>
   );
 }
+
 
 export default App;
