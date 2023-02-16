@@ -12,10 +12,10 @@ type CatfactResponseType = {
 };
 type CatfactDateType = {
   breed: string,
-  country: string,
-  origin: string,
-  coat: string,
-  pattern: string
+  country?: string,
+  origin?: string,
+  coat?: string,
+  pattern?: string
 }
 
 const sleep = (sec: number) => new Promise((resolve) => setTimeout(resolve, sec * 1000));
@@ -30,8 +30,10 @@ const getCatBreeds = async () => {
 
 const App = () => {
   const [catBreeds, setCatBreeds] = useState<CatfactDateType[]>([]);
+  const [value, setValue] = useState<CatfactDateType|null>(null);
 
   useEffect(() => {
+    setTimeout(() => setValue({breed: "xx"}), 0.5 * 1000);
     (async() => {
       setCatBreeds(await getCatBreeds());
     })();
@@ -45,6 +47,7 @@ const App = () => {
       options={catBreeds}
       getOptionLabel={(option) => option.breed}
       sx={{ width: 300 }}
+      value={catBreeds.length > 0 ? value : null}
       renderInput={(params) => <TextField {...params} label="Cats" />}
     />
    </Paper>
