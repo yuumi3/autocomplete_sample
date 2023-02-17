@@ -42,7 +42,7 @@ const AppMain = () => {
       options={catBreeds}
       getOptionLabel={(option) => option.breed}
       value = {lastValue}
-      // value = {catBreeds.length > 0 ? lastValue : null}
+      // value = {catBreeds.length > 0 ? lastValue : null}  // optionsが準備出来るのを待つ
       isOptionEqualToValue={(option, value) => value === null || option.breed === value.breed}
       sx={{ width: 300 }}
       renderInput={(params) => <TextField {...params} label="Cats" />}
