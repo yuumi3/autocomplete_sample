@@ -47,7 +47,8 @@ const App = () => {
       options={catBreeds}
       getOptionLabel={(option) => option.breed}
       sx={{ width: 300 }}
-      value={catBreeds.length > 0 ? value : null}
+      // value = {lastValue}
+      value={catBreeds.length > 0 ? value : null} // optionsが準備出来るのを待つ
       renderInput={(params) => <TextField {...params} label="Cats" />}
     />
    </Paper>
