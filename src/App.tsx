@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Paper, TextField, Autocomplete } from '@mui/material';
 import { Provider, useDispatch, useSelector } from 'react-redux';
-import { combineReducers, configureStore, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { combineReducers, configureStore, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import logger from "redux-logger";
 
 // https://catfact.ninja/breedsの戻り値の型
@@ -15,19 +15,21 @@ type CatfactResponseType = {
 };
 type CatfactDataType = {
   breed: string,
-  country: string,
-  origin: string,
-  coat: string,
-  pattern: string
+  country?: string,
+  origin?: string,
+  coat?: string,
+  pattern?: string
 }
 
 const sleep = (sec: number) => new Promise((resolve) => setTimeout(resolve, sec * 1000));
 
 const AppMain = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const catBreeds = useSelector((state:RootState) =>  state.catBreeds.catBreeds)
+  const catBreeds = useSelector((state:RootState) =>  state.catBreeds.catBreeds);
+  const lastValue = useSelector((state:RootState) =>  state.catBreeds.lastValue);
 
   useEffect(() => {
+    dispatch(setLastValue({breed: "Bambino"}));
     dispatch(getCatBreeds());
   }, []);
 
@@ -39,6 +41,9 @@ const AppMain = () => {
       id="combo-box-demo"
       options={catBreeds}
       getOptionLabel={(option) => option.breed}
+      value = {lastValue}
+      // value = {catBreeds.length > 0 ? lastValue : null}
+      isOptionEqualToValue={(option, value) => value === null || option.breed === value.breed}
       sx={{ width: 300 }}
       renderInput={(params) => <TextField {...params} label="Cats" />}
     />
@@ -71,13 +76,18 @@ const getCatBreeds = createAsyncThunk<CatBreedsReturnType, CatBreedsArgType>(
 
 type CatBreedsState = {
   catBreeds: CatfactDataType[],
+  lastValue: CatfactDataType | null,
   loading: boolean
 }
 
 const catBreedsSlice = createSlice({
   name: "weather",
-  initialState: {catBreeds: [], loading: false} as CatBreedsState,
-  reducers: {},
+  initialState: {catBreeds: [], lastValue: null, loading: false} as CatBreedsState,
+  reducers: {
+    setLastValue: (state, action: PayloadAction<CatfactDataType>) => {
+      state.lastValue = action.payload;
+    }
+  },
   extraReducers: (builder) => {
     builder.addCase(getCatBreeds.pending, (state) => {
       state.catBreeds = [];
@@ -94,6 +104,7 @@ const catBreedsSlice = createSlice({
   }
 });
 
+const { setLastValue } = catBreedsSlice.actions;
 const catBreedsReducer = catBreedsSlice.reducer;
 export const rootReducer = combineReducers({
   catBreeds: catBreedsReducer
